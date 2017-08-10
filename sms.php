@@ -19,7 +19,7 @@ if (validate_directory($_directory)) {
 }
 else {
   print_r("ERROR: Invalid Directory. \n");
-  print_r("USAGE: php sms.php directory filename");
+  print_r("USAGE: php sms.php directory filename \n");
 }
 
 /**
@@ -35,7 +35,13 @@ function read_directory($directory) {
   $file_content = array();
   $current_directory = opendir($directory);
   while (($file = readdir($current_directory)) !== FALSE) {
+    $file_extension = explode('.', $file);
+    $file_extension = array_pop($file_extension);
     if ($file == '.' || $file == '..') {
+      continue;
+    }
+    if ($file_extension != 'vmg') {
+      print_r("Ignoring a non VMG File: " . $file . "\n");
       continue;
     }
     $file_content[] = read_file($file);
@@ -75,31 +81,35 @@ function read_file($file) {
  */
 function read_sms($file_content) {
   $messages = array();
-  foreach ($file_content as $key => $file) {
-    $content = explode(PHP_EOL, $file);
-    foreach ($content as $line) {
-      switch (TRUE) {
-        case substr($line, 0, strlen('Date:')) === 'Date:':
-          $messages[$key]['Date'] = substr($line, strlen('Date:'), strlen($line));
-          break;
+  if (!empty($file_content)) {
+    foreach ($file_content as $key => $file) {
+      $content = explode(PHP_EOL, $file);
+      foreach ($content as $line) {
+        switch (TRUE) {
+          case substr($line, 0, strlen('Date:')) === 'Date:':
+            $messages[$key]['Date'] = substr($line, strlen('Date:'), strlen($line));
+            break;
 
-        case substr($line, 0, strlen('X-IRMC-BOX:')) === 'X-IRMC-BOX:':
-          $messages[$key]['Message Type'] = substr($line, strlen('X-IRMC-BOX:'), strlen($line));
-          break;
+          case substr($line, 0, strlen('X-IRMC-BOX:')) === 'X-IRMC-BOX:':
+            $messages[$key]['Message Type'] = substr($line, strlen('X-IRMC-BOX:'), strlen($line));
+            break;
 
-        case substr($line, 0, strlen('TEL:')) === 'TEL:':
-          $messages[$key]['Mobile'] = substr($line, strlen('TEL:'), strlen($line));
-          break;
+          case substr($line, 0, strlen('TEL:')) === 'TEL:':
+            $messages[$key]['Mobile'] = substr($line, strlen('TEL:'), strlen($line));
+            break;
 
-        case substr($line, 0, strlen('TEXT:')) === 'TEXT:':
-          $messages[$key]['Text'] = substr($line, strlen('TEXT:'), strlen($line));
-          break;
+          case substr($line, 0, strlen('TEXT:')) === 'TEXT:':
+            $messages[$key]['Text'] = substr($line, strlen('TEXT:'), strlen($line));
+            break;
 
-        default:
-          break;
+          default:
+            break;
+        }
+      }
+      if (!empty($messages[$key])) {
+        ksort($messages[$key]);
       }
     }
-    ksort($messages[$key]);
   }
   return $messages;
 }
@@ -130,10 +140,18 @@ function write_sms($messages) {
   if (!empty($messages)) {
     $file = fopen($_output, "a");
     foreach ($messages as $message) {
-      fputcsv($file, $message);
+      if (!empty($message)) {
+        fputcsv($file, $message);
+      }
+      else {
+        print_r("Ignoring an empty message.\n");
+      }
     }
     fclose($file);
-    print_r('Successfully Exported into ' . $_output);
+    print_r("Successfully Exported into " . $_output . "\n");
+  }
+  else {
+    print_r("There is no valid VMG files to process. \n");
   }
 }
 
