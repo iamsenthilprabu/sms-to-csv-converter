@@ -80,25 +80,26 @@ function read_sms($file_content) {
     foreach ($content as $line) {
       switch (TRUE) {
         case substr($line, 0, strlen('Date:')) === 'Date:':
-          $messages[$key]['date'] = substr($line, strlen('Date:'), strlen($line));
+          $messages[$key]['Date'] = substr($line, strlen('Date:'), strlen($line));
           break;
 
         case substr($line, 0, strlen('X-IRMC-BOX:')) === 'X-IRMC-BOX:':
-          $messages[$key]['box'] = substr($line, strlen('X-IRMC-BOX:'), strlen($line));
+          $messages[$key]['Message Type'] = substr($line, strlen('X-IRMC-BOX:'), strlen($line));
           break;
 
         case substr($line, 0, strlen('TEL:')) === 'TEL:':
-          $messages[$key]['number'] = substr($line, strlen('TEL:'), strlen($line));
+          $messages[$key]['Mobile'] = substr($line, strlen('TEL:'), strlen($line));
           break;
 
         case substr($line, 0, strlen('TEXT:')) === 'TEXT:':
-          $messages[$key]['body'] = substr($line, strlen('TEXT:'), strlen($line));
+          $messages[$key]['Text'] = substr($line, strlen('TEXT:'), strlen($line));
           break;
 
         default:
           break;
       }
     }
+    ksort($messages[$key]);
   }
   return $messages;
 }
@@ -115,7 +116,7 @@ function read_sms($file_content) {
  *   The sorted messages array.
  */
 function sort_by_date($a, $b) {
-  return strtotime($a['date']) > strtotime($b['date']);
+  return strtotime($a['Date']) > strtotime($b['Date']);
 }
 
 /**
