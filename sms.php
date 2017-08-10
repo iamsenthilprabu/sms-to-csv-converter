@@ -15,6 +15,7 @@ if (validate_directory($_directory)) {
   $file_content = read_directory($_directory);
   $messages = read_sms($file_content);
   usort($messages, 'sort_by_date');
+  clear_csv($_output);
   write_sms($messages);
 }
 else {
@@ -179,4 +180,16 @@ function validate_directory($directory) {
  */
 function is_dir_empty($directory) {
   return (count(glob($directory . "/*")) === 0);
+}
+
+/**
+ * Remove the existing content of the given CSV.
+ *
+ * @param string $filename
+ *   Name of the CSV File.
+ */
+function clear_csv($filename) {
+  $file = fopen($filename, "w");
+  file_put_contents($filename, "");
+  fclose($file);
 }
