@@ -29,7 +29,7 @@ Hit enter.
 You will see the exported CSV file in the repository directory. [OR]
 You will see an error message if you entered an invalid directory.
 
-Note: `output_file_name` is optional. The output file is always .csv and you dont need to give the file extenion. If you don't give the output_file_name, file will be generated with the name: `SMS_output_YYYY_MM_DD HH_MM_SS.csv`
+Note: `output_file_name` is optional. The output file is always .csv and you don't need to give the file extension. If you don't give the output_file_name, file will be generated with the name: `SMS_output_YYYY_MM_DD HH_MM_SS.csv`
 
 This application will process only the .vmg files in the given directory. Other files in the given directory will be automatically ignored.
 
